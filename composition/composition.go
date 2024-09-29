@@ -30,23 +30,44 @@ func SumRes(xs []float64, mean float64) float64 {
 	return Sum(xs, func(x float64) float64 { return Sq(x - mean) })
 }
 
-// Функция для вычисления дисперсии
-func Variance(xs []float64) (float64, error) {
+// Функция для вычисления дисперсии с преобразованием []int в []float64
+func CalculateVariance(xs []int) (*float64, error) {
 	n := len(xs)
 	if n == 0 {
-		return 0, errors.New("slice is empty")
+		return nil, errors.New("slice is empty")
 	}
-	mean := Mean(xs)
-	sumRes := SumRes(xs, mean)
-	return sumRes / float64(n), nil
+
+	// Преобразование []int в []float64
+	floats := make([]float64, n)
+	for i, v := range xs {
+		floats[i] = float64(v)
+	}
+
+	// Вычисление среднего
+	mean := Mean(floats)
+
+	// Вычисление суммы квадратов отклонений
+	sumRes := SumRes(floats, mean)
+
+	// Вычисляем дисперсию
+	variance := sumRes / float64(n)
+
+	// Возвращаем указатель на результат
+	return &variance, nil
 }
 
+// Основная функция для тестирования
 func main() {
-	data := []float64{4, 6, 9, 45, 8, 17, 3}
-	variance, err := Variance(data)
-	if err != nil {
-		fmt.Println("Error:", err)
+	// Пример входных данных
+	numbers := []int{4, 6, 9, 45, 8, 17, 3}
+
+	// Вычисляем дисперсию
+	learnerResult, learnerError := CalculateVariance(numbers)
+	if learnerError != nil {
+		fmt.Println("Error:", learnerError)
 		return
 	}
-	fmt.Printf("Variance: %.6f\n", variance)
+
+	// Печатаем результат
+	fmt.Printf("Variance: %.6f\n", *learnerResult)
 }

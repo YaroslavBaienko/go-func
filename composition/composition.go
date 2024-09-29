@@ -3,63 +3,49 @@ package main
 import (
 	"errors"
 	"fmt"
+	"math"
 )
 
-// Функция для вычисления квадрата числа
-func Sq(x float64) float64 {
-	return x * x
-}
-
-// Функция для вычисления суммы элементов с использованием переданной функции
-func Sum(xs []float64, f func(float64) float64) float64 {
-	sum := 0.0
-	for _, x := range xs {
-		sum += f(x)
-	}
-	return sum
-}
-
-// Функция для вычисления среднего значения
-func Mean(xs []float64) float64 {
-	n := float64(len(xs))
-	return Sum(xs, func(x float64) float64 { return x }) / n
-}
-
-// Функция для вычисления суммы квадратов отклонений от среднего
-func SumRes(xs []float64, mean float64) float64 {
-	return Sum(xs, func(x float64) float64 { return Sq(x - mean) })
-}
-
-// Функция для вычисления дисперсии с преобразованием []int в []float64
-func CalculateVariance(xs []int) (*float64, error) {
-	n := len(xs)
-	if n == 0 {
-		return nil, errors.New("slice is empty")
+// CalculateVariance returns variance of the numbers slice, or an error.
+func CalculateVariance(numbers []int) (*float64, error) {
+	// Проверяем, что слайс не пустой. Если пустой, возвращаем ошибку.
+	if numbers == nil || len(numbers) == 0 {
+		return nil, errors.New("empty numbers")
 	}
 
-	// Преобразование []int в []float64
-	floats := make([]float64, n)
-	for i, v := range xs {
-		floats[i] = float64(v)
+	// Преобразуем длину массива в тип float64, так как нам нужно работать с плавающей точкой.
+	n := float64(len(numbers))
+
+	// Функция sum принимает функцию f как параметр и возвращает сумму значений слайса numbers.
+	sum := func(f func(int) float64) float64 {
+		var s float64
+		for _, num := range numbers {
+			s += f(num)
+		}
+		return s
 	}
 
-	// Вычисление среднего
-	mean := Mean(floats)
+	// Вычисляем среднее значение. Для этого суммируем все значения numbers и делим на n.
+	mean := sum(func(i int) float64 {
+		return float64(i)
+	}) / n
 
-	// Вычисление суммы квадратов отклонений
-	sumRes := SumRes(floats, mean)
+	// Вычисляем сумму квадратов отклонений от среднего значения.
+	sumRes := sum(func(i int) float64 {
+		return math.Pow(float64(i)-mean, 2)
+	})
 
-	// Вычисляем дисперсию
-	variance := sumRes / float64(n)
+	// Вычисляем дисперсию: сумма отклонений / количество элементов.
+	variance := sumRes / n
 
-	// Возвращаем указатель на результат
+	// Возвращаем указатель на дисперсию и nil (без ошибки).
 	return &variance, nil
 }
 
 // Основная функция для тестирования
 func main() {
 	// Пример входных данных
-	numbers := []int{4, 6, 9, 45, 8, 17, 3}
+	numbers := []int{5, 455, 34, 36, 94, 4}
 
 	// Вычисляем дисперсию
 	learnerResult, learnerError := CalculateVariance(numbers)

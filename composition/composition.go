@@ -45,7 +45,7 @@ func CalculateVariance(numbers []int) (*float64, error) {
 // Основная функция для тестирования
 func main() {
 	// Пример входных данных
-	numbers := []int{5, 455, 34, 36, 94, 4}
+	numbers := []int{5, 455, 34, 36, 94, 4, 49}
 
 	// Вычисляем дисперсию
 	learnerResult, learnerError := CalculateVariance(numbers)
@@ -56,4 +56,14 @@ func main() {
 
 	// Печатаем результат
 	fmt.Printf("Variance: %.6f\n", *learnerResult)
+
+	fmt.Printf("%v", numbers)
+
+	medianResult, medianError := Median(numbers)
+	if medianError != nil {
+		fmt.Println("Error:", medianError)
+		return
+	}
+
+	fmt.Printf("Median: %.6f\n", *medianResult)
 }
